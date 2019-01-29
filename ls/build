@@ -1,0 +1,6 @@
+#!/bin/bash
+gcc my_ls.c -o cjls && echo "local test:" 
+./cjls -la
+echo "non-local test:"
+./cjls -la .. 
+
