@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
 	char* temp;
 	struct tm* timeinfo;
 	//char* buffer;
+	int bin_trac;
 
 	for(int i = 1; i < argc; ++i) {
 		if(argv[i][0] == 45) {
@@ -57,7 +58,7 @@ int main(int argc, char** argv) {
 		strcpy(argv[0], ".");
 	}
 	if(l_set) {
-		printf("user\tgroup\tsize\tfile\n");
+		printf("permissions\tuser\tgroup\tsize\tfile\n");
 	}
 	//printf("argv[0] = %s\n", argv[0]);
 	for(int i = 0; i < argc; ++i) {
@@ -79,7 +80,31 @@ int main(int argc, char** argv) {
 					//timeinfo = localtime(&stat_block.st_mtime);
 					//strftime(buffer, 80, "%h %e %R", timeinfo);
 
-					printf("%s\t", getpwuid(stat_block.st_uid)->pw_name);
+					bin_trac = 1 << 8;
+					for(int j = 0; j < 9; ++j) {
+						if(bin_trac & stat_block.st_mode) {
+							switch(j % 3) {
+								case 0:
+									printf("r");
+									break;
+								case 1:
+									printf("w");
+									break;
+								case 2:
+									printf("x");
+									break;
+								default:
+									printf("?");
+							}
+						} else {
+							printf("-");
+						}
+
+						bin_trac = bin_trac >> 1;
+					}
+
+					//printf("%04o\t", stat_block.st_mode);
+					printf("\t%s\t", getpwuid(stat_block.st_uid)->pw_name);
 					printf("%s\t", getgrgid(stat_block.st_gid)->gr_name);
 					printf("%lld\t", (long long)stat_block.st_size);
 					//printf("%s\t", buffer);
