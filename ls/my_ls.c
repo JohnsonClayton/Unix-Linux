@@ -59,16 +59,21 @@ int main(int argc, char** argv) {
 	if(l_set) {
 		printf("user\tgroup\tsize\tfile\n");
 	}
+	//printf("argv[0] = %s\n", argv[0]);
 	for(int i = 0; i < argc; ++i) {
+		if(argv[i] != NULL) {
 		head_dir = opendir(argv[i]);
 		while(head_dir) {
 			errno = 0;
 			if((dp = readdir(head_dir)) != NULL) {
 				if(l_set) {
-					strcpy(temp, argv[i]);
-					strcat(temp, dp->d_name); //This probably breaks the program b/c it doesn't know the absolute path
-					//printf("%s", temp);
+					//memset(temp, 0, sizeof(temp));
+					//strcpy(temp, argv[i]);
+					//strcat(temp, dp->d_name); //This probably breaks the program b/c it doesn't know the absolute path
+					//printf("temp: %s\n", temp);
 					stat(dp->d_name, &stat_block);
+					//printf("d_name : %s -> ", dp->d_name);
+					//stat(temp, &stat_block);
 
 					//time(&stat_block.st_mtime);
 					//timeinfo = localtime(&stat_block.st_mtime);
@@ -103,6 +108,7 @@ int main(int argc, char** argv) {
 				closedir(head_dir);
 				return 2;
 			}
+		}
 		}
 	}
 	return 0;
