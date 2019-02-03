@@ -8,7 +8,7 @@
 #include <grp.h>
 
 int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
-	printf("\n~~~ listDirs entered ~~~\n\targc: %d\n\targv[0]: %s\n", argc, argv[0]);
+	//printf("\n~~~ listDirs entered ~~~\n\targc: %d\n\targv[0]: %s\n", argc, argv[0]);
 	DIR* head_dir;
 	struct dirent* dp;
 	int errno;
@@ -19,7 +19,7 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 
 	for(int i = 0; i < argc; ++i) {
 		if(argv[i] != NULL) {
-			printf("Opening %s\n", argv[i]);
+			printf("\n\tListing %s\n", argv[i]);
 			head_dir = opendir(argv[i]);
 		}
 //		head_dir = opendir(argv[i]);
@@ -33,7 +33,8 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 					new_args[new_argsc] = malloc(sizeof(argv[0]) + sizeof(dp->d_name) + 3);
 					//strcat(*new_args, dp->d_name);
 					//strcat(*new_args, " ");		
-					new_args[new_argsc] = argv[0];	
+					//new_args[new_argsc] = argv[0];	
+					strcat(*new_args, argv[i]);
 					strcat(*new_args, "/");
 					strcat(*new_args, dp->d_name);
 					//new_args[new_argsc] = dp->d_name; 	
@@ -80,7 +81,7 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 				}
 			}
 			else {
-				printf("Size of new_argsc2: %d", new_argsc);
+				//printf("Size of new_argsc2: %d", new_argsc);
 				if(new_argsc) {
 					return listDirs(new_argsc, new_args, a_set, l_set, r_set);
 				}
@@ -95,7 +96,7 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 		
 	}
 
-	printf("Size of new_argsc: %d", new_argsc);
+	//printf("Size of new_argsc: %d", new_argsc);
 	if(new_argsc) {
 	return	listDirs(new_argsc, new_args, a_set, l_set, r_set);
 	}
@@ -143,7 +144,6 @@ void setArgs(int argc, char** argv,  int* a_set, int* l_set, int* r_set) {
 	if(l_set) {
 		printf("permissions\tuser\tgroup\tsize\tfile\n");
 	}
-
 }
 
 int main(int argc, char** argv) {
