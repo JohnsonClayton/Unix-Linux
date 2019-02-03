@@ -19,8 +19,13 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 
 	for(int i = 0; i < argc; ++i) {
 		if(argv[i] != NULL) {
-			printf("\n\tListing %s\n", argv[i]);
 			head_dir = opendir(argv[i]);
+			if(head_dir) {
+				printf("\n\tListing %s\n", argv[i]);
+			}
+			if(l_set) {
+				printf("permissions\tuser\tgroup\tsize\tfile\n");
+			}
 		}
 //		head_dir = opendir(argv[i]);
 		while(head_dir) {
@@ -28,22 +33,20 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 			if((dp = readdir(head_dir)) != NULL) {
 				stat(dp->d_name, &stat_block);
 				if(r_set && S_ISDIR(stat_block.st_mode) && dp->d_name[0] != '.') {
-					printf("d");
 					new_args = malloc(1);
-					new_args[new_argsc] = malloc(sizeof(argv[0]) + sizeof(dp->d_name) + 3);
-					//strcat(*new_args, dp->d_name);
-					//strcat(*new_args, " ");		
-					//new_args[new_argsc] = argv[0];	
+					new_args[new_argsc] = malloc(sizeof(argv[0]) + sizeof(dp->d_name));
 					strcat(*new_args, argv[i]);
 					strcat(*new_args, "/");
-					strcat(*new_args, dp->d_name);
-					//new_args[new_argsc] = dp->d_name; 	
+					strcat(*new_args, dp->d_name); //This is building the relative path for the new file to recurse into
 					++new_argsc;
-				} else {
-					printf("-");
 				}
 
 				if(l_set) {
+					if(S_ISDIR(stat_block.st_mode)) {
+						printf("d");
+					} else {
+						printf("-");
+					}
 					bin_trac = 1 << 8;
 					for(int j = 0; j < 9; ++j) {
 						if(bin_trac & stat_block.st_mode) {
@@ -81,7 +84,6 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 				}
 			}
 			else {
-				//printf("Size of new_argsc2: %d", new_argsc);
 				if(new_argsc) {
 					return listDirs(new_argsc, new_args, a_set, l_set, r_set);
 				}
@@ -95,8 +97,6 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 		}
 		
 	}
-
-	//printf("Size of new_argsc: %d", new_argsc);
 	if(new_argsc) {
 	return	listDirs(new_argsc, new_args, a_set, l_set, r_set);
 	}
@@ -140,9 +140,6 @@ void setArgs(int argc, char** argv,  int* a_set, int* l_set, int* r_set) {
 	
 	if(!directory_specified) {
 		strcpy(argv[0], ".");
-	}
-	if(l_set) {
-		printf("permissions\tuser\tgroup\tsize\tfile\n");
 	}
 }
 
