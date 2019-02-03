@@ -6,26 +6,43 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
-#include <time.h>
 
-int listDirs(int argc, char** argv, _Bool a_set, _Bool l_set, _Bool s_set) {
+int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
+	printf("\n~~~ listDirs entered ~~~\n\targc: %d\n\targv[0]: %s\n", argc, argv[0]);
 	DIR* head_dir;
 	struct dirent* dp;
 	int errno;
 	struct stat stat_block;
 	int bin_trac;
+	char** new_args;
+	int new_argsc = 0;
 
 	for(int i = 0; i < argc; ++i) {
 		if(argv[i] != NULL) {
+			printf("Opening %s\n", argv[i]);
 			head_dir = opendir(argv[i]);
 		}
 //		head_dir = opendir(argv[i]);
 		while(head_dir) {
 			errno = 0;
 			if((dp = readdir(head_dir)) != NULL) {
-				if(l_set) {
-					stat(dp->d_name, &stat_block);
+				stat(dp->d_name, &stat_block);
+				if(r_set && S_ISDIR(stat_block.st_mode) && dp->d_name[0] != '.') {
+					printf("d");
+					new_args = malloc(1);
+					new_args[new_argsc] = malloc(sizeof(argv[0]) + sizeof(dp->d_name) + 3);
+					//strcat(*new_args, dp->d_name);
+					//strcat(*new_args, " ");		
+					new_args[new_argsc] = argv[0];	
+					strcat(*new_args, "/");
+					strcat(*new_args, dp->d_name);
+					//new_args[new_argsc] = dp->d_name; 	
+					++new_argsc;
+				} else {
+					printf("-");
+				}
 
+				if(l_set) {
 					bin_trac = 1 << 8;
 					for(int j = 0; j < 9; ++j) {
 						if(bin_trac & stat_block.st_mode) {
@@ -63,6 +80,10 @@ int listDirs(int argc, char** argv, _Bool a_set, _Bool l_set, _Bool s_set) {
 				}
 			}
 			else {
+				printf("Size of new_argsc2: %d", new_argsc);
+				if(new_argsc) {
+					return listDirs(new_argsc, new_args, a_set, l_set, r_set);
+				}
 				if(errno == 0) {
 					closedir(head_dir);
 					return 1;
@@ -73,13 +94,14 @@ int listDirs(int argc, char** argv, _Bool a_set, _Bool l_set, _Bool s_set) {
 		}
 		
 	}
+
+	printf("Size of new_argsc: %d", new_argsc);
+	if(new_argsc) {
+	return	listDirs(new_argsc, new_args, a_set, l_set, r_set);
+	}
 }
 
-int main(int argc, char** argv) {
-
-	_Bool a_set = 0; 
-	_Bool l_set = 0;
-	_Bool r_set = 0;
+void setArgs(int argc, char** argv,  int* a_set, int* l_set, int* r_set) {
 
 	for(int i = 1; i < argc; ++i) {
 		if(argv[i][0] == 45) {
@@ -88,10 +110,13 @@ int main(int argc, char** argv) {
 			while(argv[i][current]) {
 				switch(argv[i][current]) {
 					case 'a': 
-						a_set = 1;
+						*a_set = 1;
 						break;
 					case 'l':
-						l_set = 1;
+						*l_set = 1;
+						break;
+					case 'r': 
+						*r_set = 1;
 						break;
 					default:
 						printf("unknown arg: %c", argv[i][current]);
@@ -104,7 +129,7 @@ int main(int argc, char** argv) {
 
 	}
 
-	_Bool directory_specified = 0;
+	int directory_specified = 0;
 	for(int i = 1; i < argc; ++i) {
 		if(argv[i] != NULL) {
 	//	if(!strcmp(argv[i], "")) {
@@ -118,6 +143,15 @@ int main(int argc, char** argv) {
 	if(l_set) {
 		printf("permissions\tuser\tgroup\tsize\tfile\n");
 	}
+
+}
+
+int main(int argc, char** argv) {
+
+	int a_set = 0; 
+	int l_set = 0;
+	int r_set = 0;
+	setArgs(argc, argv, &a_set, &l_set, &r_set);
 	return listDirs(argc, argv, a_set, l_set, r_set);
 	//return 0;
 }
