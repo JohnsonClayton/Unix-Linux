@@ -14,7 +14,7 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 	int errno;
 	struct stat stat_block;
 	int bin_trac;
-	char** new_args;
+	char* new_args[100];
 	int new_argsc = 0;
 
 	for(int i = 0; i < argc; ++i) {
@@ -23,8 +23,8 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 			if(head_dir) {
 				printf("\n\tListing %s\n", argv[i]);
 			}
-			if(l_set) {
-				printf("permissions\tuser\tgroup\tsize\tfile\n");
+			if(l_set && head_dir) {
+				printf("permissions\tuser\tgroup\tsize\tfile\n--------------------------------------------\n");
 			}
 		}
 //		head_dir = opendir(argv[i]);
@@ -33,11 +33,11 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 			if((dp = readdir(head_dir)) != NULL) {
 				stat(dp->d_name, &stat_block);
 				if(r_set && S_ISDIR(stat_block.st_mode) && dp->d_name[0] != '.') {
-					new_args = malloc(1);
+					//new_args = malloc(sizeof(new_args));
 					new_args[new_argsc] = malloc(sizeof(argv[0]) + sizeof(dp->d_name));
-					strcat(*new_args, argv[i]);
-					strcat(*new_args, "/");
-					strcat(*new_args, dp->d_name); //This is building the relative path for the new file to recurse into
+					strcat(new_args[new_argsc], argv[i]);
+					strcat(new_args[new_argsc], "/");
+					strcat(new_args[new_argsc], dp->d_name); //This is building the relative path for the new file to recurse into
 					++new_argsc;
 				}
 
@@ -47,7 +47,7 @@ int listDirs(int argc, char** argv, int a_set, int l_set, int r_set) {
 					} else {
 						printf("-");
 					}
-					bin_trac = 1 << 8;
+					bin_trac = 1 << 8; //Found this strategy at https://jameshfisher.com/2017/02/24/what-is-mode_t.html
 					for(int j = 0; j < 9; ++j) {
 						if(bin_trac & stat_block.st_mode) {
 							switch(j % 3) {
@@ -122,9 +122,8 @@ void setArgs(int argc, char** argv,  int* a_set, int* l_set, int* r_set) {
 					default:
 						printf("unknown arg: %c", argv[i][current]);
 				}
-				current++;
+				++current;
 			}
-		//	strcpy(argv[i], "");
 			argv[i] = NULL;
 		}
 

@@ -1,7 +1,9 @@
 #!/bin/bash
 gcc my_ls.c -o cjls && echo "local test:" 
 ./cjls -la
-echo "non-local test:"
+echo "\nnon-local test:"
 ./cjls -la .. 
-echo "recursive test:"
+echo "\nrecursive test:"
 ./cjls -lar ..
+echo "\nroot test:"
+./cjls -lar /usr
