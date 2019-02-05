@@ -1,0 +1,9 @@
+#!/bin/bash
+g++ my_ls.cpp -o cjlscpp && echo "local test:" 
+./cjlscpp -la
+echo "\nnon-local test:"
+./cjlscpp -la .. 
+echo "\nrecursive test:"
+./cjlscpp -lar ..
+echo "\nroot test:"
+./cjlscpp -lar /usr
