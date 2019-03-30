@@ -1,0 +1,7 @@
+#! /bin/bash
+
+if [[ $# >= 2]] ; then
+	grep -E "[[:alnum:]._!\-]{1,}[@]{1}[[:alnum:]]*[.]?[[:alnum:]]{1,}[.]{1}[[:alnum:]]{2,5}" $1
+else
+	echo "Usage: findEmails [files ...]"
+fi
